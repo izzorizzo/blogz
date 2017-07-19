@@ -14,17 +14,17 @@ app.secret_key = "jalsejiofjakfgjka"
 # database class
 class Entry(db.Model):
 
-    # table columns
+    # TODO change 
+
+    # database table columns
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120))
-    completed = db.Column(db.Boolean, default=False)
-    owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    title = db.Column(db.String(150))
+    body = db.Column(db.String(500))
+    datecreated = db.Column(db.DateTime)
 
-    def __init__(self, name, owner):
-        self.name = name
-        self.completed = False 
-        self.owner = owner 
-
+    def __init__(self, title, body):
+        self.title = title
+        self.body = body 
 
 # redirects to blog page for convenience
 @app.route("/")
@@ -33,24 +33,40 @@ def index():
 
 
 # main blog page
+# displays all blog entries
 @app.route("/blog", methods=["POST", "GET"])
-def login ():
+def blog():
+    #TODO if request.method == "POST":
+    
+
+        
+
+    return render_template("mainpage.html", title="All Entries")
+
+
+@app.route("/new_entry", method=["POST", "GET"])
+def new_entry():
     if request.method == "POST":
-        email = request.form["email"]
-        password = request.form["password"]
-        user = User.query.filter_by(email=email).first()
+        new_title = request.form["title"]
+        new_entry = request.form["body"]
 
-        if user and user.password == password:
-            # remembers if user has logged in before
-            session["email"] = email 
-            # flash message after login
-            flash("Logged In")
-            print(session)
-            return redirect("/")
+        # validation
+        if new_title == "" or new_entry == "":
+            # error message
+            flash("A title and a body are required to submit an entry", "error")
+            # render template again, including anything user input
+            return render_template("new_entry.html", title="New Blog Entry", new_title=new_title, new_entry=new_entry)
+        # if no errors, add entry to database
         else:
-           # flash("User password incorrect, or user does not exist", "error")
+            db.session.add(new_entry)
+            db.session.commit()
 
-    return render_template("login.html")
+        # TODO redirect to specific entry
+        # return redirect("blog?id=" + str())
+
+    if request.method == "GET":
+        return render_template("new_entry.html", title="New Blog Entry")
+
 
 
 

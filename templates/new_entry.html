@@ -1,15 +1,17 @@
-(% extends "base.html" %)
+{% extends "base.html" %}
 
-(% block content %)
+{% block content %}
 
 <h1>New Blog Entry</h1>
 
 <form action="/new_entry" method="POST">
-    <label for "title">Blog Title</label>
-    <input name="title" value="{{new_title}}">
+    <p><label for="title">Blog Title</label>
+    <input name="title" value="{{new_title}}"></p>
 
-    <label for="body">Blog Text</label><textarea name="body" value="{{new_entry}}">
+    <p><label for="body">Blog Text</label>
+    <textarea name="body" value="{{new_entry}}"></textarea></p>
 
+    <p><input type="submit" value="Save Entry"></p>
 </form>
 
-(% endblock %)
+{% endblock %}

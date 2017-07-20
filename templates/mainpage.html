@@ -4,13 +4,14 @@
 
     <h1>All Blog Entries</h1>
 
-        {% for entry %}
-            <h2>{{entry.title}}</h2>
-            <p>{{entry.body}}</p>
-        {% endfor %}
+        {% for entry in all_entries %}
 
-    <!-- TODO: display all entries -->
-    <!-- TODO: add link to title that leads to specific entry -->
+            <h2>
+                <a href="/blog?id={{entry.id}}">{{entry.title}}</a>
+            </h2>
+            <p>{{entry.body}}</p>
+
+        {% endfor %}
 
 
 {% endblock %}

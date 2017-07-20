@@ -49,7 +49,7 @@ def blog():
     # displays entries in chrono order
     all_entries = Entry.query.all()
     
-    # shows all entries in reverse chronological order
+    # from Al's code: shows all entries in reverse chronological order
     #all_entries = Entry.query.order_by(Entry.datecreated.desc()).all()
 
     # show specific entry

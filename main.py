@@ -1,5 +1,6 @@
 from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -24,7 +25,15 @@ class Entry(db.Model):
 
     def __init__(self, title, body):
         self.title = title
-        self.body = body 
+        self.body = body
+        self.datecreated = datetime.utcnow()
+
+    #validation
+    def validation(self):
+        if self.title and self.body and self.datecreated:
+            return True
+        else:
+            return False
 
 # redirects to blog page for convenience
 @app.route("/")
@@ -36,37 +45,48 @@ def index():
 # displays all blog entries
 @app.route("/blog", methods=["POST", "GET"])
 def blog():
-    #TODO if request.method == "POST":
-    
+
+    # shows all entries in reverse chronological order
+    all_entries = Entry.query.order_by(Entry.datecreated.desc()).all()
+
+    # show specific entry
+    entry_id = request.args.get("id")
+    if (entry_id):
+        entry = Entry.query.get(entry_id)
+        return render_template("one_entry.html", title="Blog Entry", entry=entry)
 
         
+    #renders all entries
+    return render_template("mainpage.html", title="All Blog Entries", all_entries=all_entries)
 
-    return render_template("mainpage.html", title="All Entries")
 
-
-@app.route("/new_entry", method=["POST", "GET"])
+@app.route("/new_entry", methods=["POST", "GET"])
 def new_entry():
+
     if request.method == "POST":
         new_title = request.form["title"]
-        new_entry = request.form["body"]
+        new_body = request.form["body"]
+        new_entry = Entry(new_title, new_body)
+
 
         # validation
-        if new_title == "" or new_entry == "":
-            # error message
-            flash("A title and a body are required to submit an entry", "error")
-            # render template again, including anything user input
-            return render_template("new_entry.html", title="New Blog Entry", new_title=new_title, new_entry=new_entry)
-        # if no errors, add entry to database
-        else:
+
+        # if valid input
+        if new_entry.validation():
+            # add to database
             db.session.add(new_entry)
             db.session.commit()
+            # redirect to new entry
+            return redirect("/blog?id=" + str(new_entry.id))
+        else:
+            # error message
+            flash("A title and a body are required to submit an entry")
+            # render template again, including any user input
+            return render_template("new_entry.html", title="New Blog Entry", new_title=new_title, new_body=new_body)
 
-        # TODO redirect to specific entry
-        # return redirect("blog?id=" + str())
-
-    if request.method == "GET":
+    else: 
+        # renders empty form
         return render_template("new_entry.html", title="New Blog Entry")
-
 
 
 

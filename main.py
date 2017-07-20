@@ -46,8 +46,11 @@ def index():
 @app.route("/blog", methods=["POST", "GET"])
 def blog():
 
+    # displays entries in chrono order
+    all_entries = Entry.query.all()
+    
     # shows all entries in reverse chronological order
-    all_entries = Entry.query.order_by(Entry.datecreated.desc()).all()
+    #all_entries = Entry.query.order_by(Entry.datecreated.desc()).all()
 
     # show specific entry
     entry_id = request.args.get("id")

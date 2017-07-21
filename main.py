@@ -15,8 +15,6 @@ app.secret_key = "jalsejiofjakfgjka"
 # database class
 class Entry(db.Model):
 
-    # TODO change 
-
     # database table columns
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150))
@@ -28,7 +26,7 @@ class Entry(db.Model):
         self.body = body
         self.datecreated = datetime.utcnow()
 
-    #validation
+    #validation 
     def validation(self):
         if self.title and self.body and self.datecreated:
             return True

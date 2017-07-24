@@ -5,7 +5,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.config['DEBUG'] = True
 # to use the SQL database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:password@localhost:8889/build-a-blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:password@localhost:8889/blogz'
 # allows you to query 
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
@@ -32,6 +32,14 @@ class Entry(db.Model):
             return True
         else:
             return False
+
+
+# TODO 
+# user class
+class User(db.Model):
+
+
+
 
 # redirects to blog page for convenience
 @app.route("/")
@@ -88,6 +96,24 @@ def new_entry():
     else: 
         # renders empty form
         return render_template("new_entry.html", title="New Blog Entry")
+
+
+# TODO user signup page
+@app.route("/signup")
+def login():
+    pass
+
+
+# TODO login page
+@app.route("/login")
+def signup():
+    pass
+
+
+# TODO 
+@app.route("/index")
+def index():
+    pass
 
 
 

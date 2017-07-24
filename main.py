@@ -21,10 +21,14 @@ class Entry(db.Model):
     title = db.Column(db.String(150))
     body = db.Column(db.String(500))
     datecreated = db.Column(db.DateTime)
+    owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
-    def __init__(self, title, body):
+    def __init__(self, title, body, owner):
         self.title = title
         self.body = body
+        # ties specific entries with Entry class to owner (or user)
+        self.owner = owner 
+        # date created for ordering entries
         self.datecreated = datetime.utcnow()
 
     #validation 
@@ -35,13 +39,14 @@ class Entry(db.Model):
             return False
 
 
-# TODO 
 # user class
 class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True)
     password = db.Column(db.String(120))
+    # ties specific entries with Entry class to owner (or user)
+    entries = db.relationship("Entry", backref="owner")
 
     def __init__(self, username, password):
         self.username = username 
@@ -53,11 +58,12 @@ class User(db.Model):
 def require_login():
     # whitelist for allowed routes
     # allows someone to view login, signup, and blog entries without signing in
-    allowed_routes = ["/login", "/signup", "/blog", "/"]
+    # user view FUNCTION to whitelist, not URL path
+    allowed_routes = ["login", "signup", "blog", "index"]
 
     # if path isn't in whitelist and user not logged in
-    # redirects to login page
-    if request.endpoint not in allowed_routes and if "username" not in session:
+    # redirects to login page 
+    if request.endpoint not in allowed_routes and "username" not in session:
         redirect("/login")
 
 
@@ -121,12 +127,13 @@ def new_entry():
 # TODO user signup page
 @app.route("/signup", methods=["POST", "GET"])
 def signup():
+
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
         verify = request.form["verify"]
 
-        # TODO add in validation from previous assignment
+        # TODO add in validation from user signup assignment
 
         # checks if user already exists in database
         existing_user = User.query.filter_by(username=username).first()
@@ -175,7 +182,7 @@ def logout():
 
 
 # TODO 
-#@app.route("/index")
+#@app.route("/")
 #def index():
     #pass 
     #return render_template("index.html")
@@ -184,3 +191,7 @@ def logout():
 
 if __name__ == '__main__':
     app.run()
+
+
+# for displaying by user
+# owner = User.query.filter_by(username=session["username"]).first()

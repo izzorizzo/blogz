@@ -105,15 +105,46 @@ def new_entry():
 
 
 # TODO user signup page
-@app.route("/signup")
+@app.route("/signup", methods=["POST", "GET"])
 def signup():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        verify = request.form["verify"]
+
+        # TODO add in validation from previous assignment
+
+        # checks if user already exists in database
+        existing_user = User.query.filter_by(username=username).first()
+        if not existing_user:
+            # creates new user
+            new_user = User(username, password)
+            # adds new user to database 
+            db.session.add(new_user)
+            db.session.commit()
+        else: 
+            # TODO error message
+            return "<h1>Duplicate user</h1>"
 
     return render_template("signup.html")
 
 
-# TODO login page
-@app.route("/login")
+# login page
+@app.route("/login", methods=["POST", "GET"])
 def login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        # returns user with a specific username, if it exists
+        user = User.query.filter_by(username=username).first()
+        # compares user and password
+        if user and user.password == password:
+            # TODO "remember" that user has logged in
+            return redirect("/")
+        else: 
+            # TODO login error 
+            return "<h1>Error!</h1>" 
 
     return render_template("login.html")
 

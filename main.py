@@ -49,16 +49,14 @@ class User(db.Model):
 
 
 # requires login
-# runs before every request 
-# TODO - needed for EVERY request? 
 @app.before_request
 def require_login():
     # whitelist for allowed routes
     # allows someone to view login, signup, and blog entries without signing in
     allowed_routes = ["/login", "/signup", "/blog", "/"]
 
-    # if path isn't in whitelist 
-    # and user not logged in, redirects to login page
+    # if path isn't in whitelist and user not logged in
+    # redirects to login page
     if request.endpoint not in allowed_routes and if "username" not in session:
         redirect("/login")
 
@@ -142,8 +140,7 @@ def signup():
             session["username"] = username
             return redirect("/blog")
         else: 
-            # TODO error message
-            return "<h1>Duplicate user</h1>"
+            flash("Username already exists.", "error")
 
     return render_template("signup.html")
 
@@ -161,10 +158,10 @@ def login():
         if user and user.password == password:
             # adds username to session
             session["username"] = username 
+            flash("Logged in.")
             return redirect("/blog")
         else: 
-            # TODO login error 
-            return "<h1>Error!</h1>" 
+            flash("User password incorrect, or user does not exist.", "error") 
 
     return render_template("login.html")
 

@@ -5,9 +5,9 @@ from datetime import datetime
 app = Flask(__name__)
 app.config['DEBUG'] = True
 # to use the SQL database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:password@localhost:8889/blogz'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:password@localhost:8889/blogz'
 # allows you to query 
-app.config['SQLALCHEMY_ECHO'] = True
+app.config['SQLALCHEMY_ECHO'] = False
 db = SQLAlchemy(app)
 app.secret_key = "jalsejiofjakfgjka"
 
@@ -38,7 +38,13 @@ class Entry(db.Model):
 # user class
 class User(db.Model):
 
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(120), unique=True)
+    password = db.Column(db.String(120))
 
+    def __init__(self, username, password):
+        self.username = username 
+        self.password = password
 
 
 # redirects to blog page for convenience
@@ -100,20 +106,23 @@ def new_entry():
 
 # TODO user signup page
 @app.route("/signup")
-def login():
-    pass
+def signup():
+
+    return render_template("signup.html")
 
 
 # TODO login page
 @app.route("/login")
-def signup():
-    pass
+def login():
+
+    return render_template("login.html")
 
 
 # TODO 
-@app.route("/index")
-def index():
-    pass
+#@app.route("/index")
+#def index():
+    #pass 
+    #return render_template("index.html")
 
 
 

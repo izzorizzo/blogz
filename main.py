@@ -9,6 +9,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:password@localhos
 # allows you to query 
 app.config['SQLALCHEMY_ECHO'] = False
 db = SQLAlchemy(app)
+# secret key is needed for session management
 app.secret_key = "jalsejiofjakfgjka"
 
 
@@ -45,6 +46,21 @@ class User(db.Model):
     def __init__(self, username, password):
         self.username = username 
         self.password = password
+
+
+# requires login
+# runs before every request 
+# TODO - needed for EVERY request? 
+@app.before_request
+def require_login():
+    # whitelist for allowed routes
+    # allows someone to view login, signup, and blog entries without signing in
+    allowed_routes = ["/login", "/signup", "/blog", "/"]
+
+    # if path isn't in whitelist 
+    # and user not logged in, redirects to login page
+    if request.endpoint not in allowed_routes and if "username" not in session:
+        redirect("/login")
 
 
 # redirects to blog page for convenience
@@ -122,7 +138,8 @@ def signup():
             # adds new user to database 
             db.session.add(new_user)
             db.session.commit()
-            # TODO "remember" the user
+            # adds username to session
+            session["username"] = username
             return redirect("/blog")
         else: 
             # TODO error message
@@ -142,13 +159,22 @@ def login():
         user = User.query.filter_by(username=username).first()
         # compares user and password
         if user and user.password == password:
-            # TODO "remember" that user has logged in
+            # adds username to session
+            session["username"] = username 
             return redirect("/blog")
         else: 
             # TODO login error 
             return "<h1>Error!</h1>" 
 
     return render_template("login.html")
+
+
+# logout
+@app.route("/logout")
+def logout():
+    # removes username from session
+    del session["username"]
+    return redirect("/blog")
 
 
 # TODO 

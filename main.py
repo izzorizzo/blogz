@@ -122,6 +122,8 @@ def signup():
             # adds new user to database 
             db.session.add(new_user)
             db.session.commit()
+            # TODO "remember" the user
+            return redirect("/blog")
         else: 
             # TODO error message
             return "<h1>Duplicate user</h1>"
@@ -141,7 +143,7 @@ def login():
         # compares user and password
         if user and user.password == password:
             # TODO "remember" that user has logged in
-            return redirect("/")
+            return redirect("/blog")
         else: 
             # TODO login error 
             return "<h1>Error!</h1>" 

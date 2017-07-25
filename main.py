@@ -100,13 +100,14 @@ def blog():
     entry_owner_id = request.args.get("user")
     if entry_owner_id:
 
-        entry_owner = User.query.filter_by(username=session['username']).first()
+        entry_owner_id = User.query.filter_by(username=session['username']).first()
         
         entry = Entry.query.get(entry_id)
         
         user_entries = Entry.query.filter_by(entry_owner_id=entry_owner_id, entry=entry)
 
-        if len(entry) == 0:
+        if len(user_entries) == 0:
+            # if no entries
             return render_template("single_user.html", title="No Posts Yet", user_entries=user_entries)
         else:
             return render_template("single_user.html", title="Posts by User", user_entries=user_entries)

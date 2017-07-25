@@ -97,7 +97,7 @@ def blog():
 
     # TODO - NOT WORKING
     #shows specific user's entries
-    entry_owner_id = request.args.get("user")
+    entry_owner_id = request.args.get("owner_id")
     if entry_owner_id:
 
         entry_owner_id = User.query.filter_by(username=session['username']).first()
@@ -106,8 +106,10 @@ def blog():
         
         user_entries = Entry.query.filter_by(entry_owner_id=entry_owner_id, entry=entry)
 
+
+
+        # if no entries
         if len(user_entries) == 0:
-            # if no entries
             return render_template("single_user.html", title="No Posts Yet", user_entries=user_entries)
         else:
             return render_template("single_user.html", title="Posts by User", user_entries=user_entries)

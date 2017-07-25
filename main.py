@@ -89,10 +89,23 @@ def blog():
 
     # show specific entry
     entry_id = request.args.get("id")
-    if (entry_id):
+    if entry_id:
         entry = Entry.query.get(entry_id)
         return render_template("one_entry.html", title="Blog Entry", entry=entry)
 
+
+    # TODO - NOT WORKING
+    #shows specific user's entries
+    user_id = request.args.get("user")
+    if user_id:
+        entries = Entry.query.filter_by(id=session["username"]).first()
+        return render_template("single_user.html", title="Posts by User", entries=entries)
+
+# for displaying by user
+# example code from get-it-done
+# owner = User.query.filter_by(username=session["username"]).first()
+# tasks = Task.query.filter_by(completed=False,owner=owner).all()
+ 
         
     #renders all entries
     return render_template("mainpage.html", title="All Blog Entries", all_entries=all_entries)
@@ -207,15 +220,3 @@ def logout():
 
 if __name__ == '__main__':
     app.run()
-
-
-# TODO 
-# for displaying by user
-# example code from get-it-done
-# owner = User.query.filter_by(username=session["username"]).first()
-# tasks = Task.query.filter_by(completed=False,owner=owner).all()
-
-# We will also add a singleUser.html template that will be used to display only the blogs associated with a single given author. It will be used when we dynamically generate a page using a GET request with a user query parameter on the /blog route (similar to how we dynamically generated individual blog entry pages in the last assignment).
-
-# TODO think about what you'll need to do in your /new_entry route handler function since there is a new parameter to consider when creating a blog entry. 
-

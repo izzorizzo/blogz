@@ -19,7 +19,8 @@ class Entry(db.Model):
     # database table columns
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150))
-    body = db.Column(db.String(500))
+    body = db.Column(db.Text)
+    #body = db.Column(db.String(500))
     datecreated = db.Column(db.DateTime)
     owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
@@ -96,10 +97,19 @@ def blog():
 
     # TODO - NOT WORKING
     #shows specific user's entries
-    user_id = request.args.get("user")
-    if user_id:
-        entries = Entry.query.filter_by(id=session["username"]).first()
-        return render_template("single_user.html", title="Posts by User", entries=entries)
+    entry_owner_id = request.args.get("user")
+    if entry_owner_id:
+
+        entry_owner = User.query.filter_by(username=session['username']).first()
+        
+        entry = Entry.query.get(entry_id)
+        
+        user_entries = Entry.query.filter_by(entry_owner_id=entry_owner_id, entry=entry)
+
+        if len(entry) == 0:
+            return render_template("single_user.html", title="No Posts Yet", user_entries=user_entries)
+        else:
+            return render_template("single_user.html", title="Posts by User", user_entries=user_entries)
 
 # for displaying by user
 # example code from get-it-done

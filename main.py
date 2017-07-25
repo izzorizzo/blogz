@@ -138,6 +138,7 @@ def signup():
         verify = request.form["verify"]
 
         # validation 
+        # only needed during signup since database checks during login
         # checks length of username
         if len(username) <=3 or len(username) >=20:
             flash("Please enter a username between 3 and 20 characters.", "error")

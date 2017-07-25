@@ -43,8 +43,8 @@ class Entry(db.Model):
 class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(120), unique=True)
-    password = db.Column(db.String(120))
+    username = db.Column(db.String(20), unique=True)
+    password = db.Column(db.String(20))
     # ties specific entries with Entry class to owner (or user)
     entries = db.relationship("Entry", backref="owner")
 
@@ -67,10 +67,13 @@ def require_login():
         redirect("/login")
 
 
-# redirects to blog page for convenience
+# lists all blog users
 @app.route("/")
 def index():
-    return redirect("/blog")
+    # query for all users
+    users = User.query.all()
+    # renders template
+    return render_template("index.html", title="All Blog Users", users=users)
 
 
 # main blog page
@@ -101,11 +104,12 @@ def new_entry():
     if request.method == "POST":
         new_title = request.form["title"]
         new_body = request.form["body"]
-        new_entry = Entry(new_title, new_body)
+        # added post owner since it's needed for this query
+        post_owner = User.query.filter_by(username=session['username']).first()
+        new_entry = Entry(new_title, new_body, post_owner)
 
 
         # validation
-
         # if valid input
         if new_entry.validation():
             # add to database
@@ -124,7 +128,7 @@ def new_entry():
         return render_template("new_entry.html", title="New Blog Entry")
 
 
-# TODO user signup page
+# user signup page
 @app.route("/signup", methods=["POST", "GET"])
 def signup():
 
@@ -133,7 +137,19 @@ def signup():
         password = request.form["password"]
         verify = request.form["verify"]
 
-        # TODO add in validation from user signup assignment
+        # validation 
+        # checks length of username
+        if len(username) <=3 or len(username) >=20:
+            flash("Please enter a username between 3 and 20 characters.", "error")
+            
+        # checks length of password
+        if len(password) <=3 or len(password) >=20:
+            flash("Please enter a password between 3 and 20 characters.", "error")
+
+        # checks passwords match
+        if password != verify:
+            flash("Passwords must match.")
+            
 
         # checks if user already exists in database
         existing_user = User.query.filter_by(username=username).first()
@@ -177,15 +193,14 @@ def login():
 @app.route("/logout")
 def logout():
     # removes username from session
-    del session["username"]
-    return redirect("/blog")
 
-
-# TODO 
-#@app.route("/")
-#def index():
-    #pass 
-    #return render_template("index.html")
+    # if logged in, logout user
+    if session: 
+        del session["username"]
+        return redirect("/")
+    # if no user is logged in, simply redirect to home
+    else: 
+        return redirect("/")
 
 
 
@@ -193,5 +208,13 @@ if __name__ == '__main__':
     app.run()
 
 
+# TODO 
 # for displaying by user
+# example code from get-it-done
 # owner = User.query.filter_by(username=session["username"]).first()
+# tasks = Task.query.filter_by(completed=False,owner=owner).all()
+
+# We will also add a singleUser.html template that will be used to display only the blogs associated with a single given author. It will be used when we dynamically generate a page using a GET request with a user query parameter on the /blog route (similar to how we dynamically generated individual blog entry pages in the last assignment).
+
+# TODO think about what you'll need to do in your /new_entry route handler function since there is a new parameter to consider when creating a blog entry. 
+

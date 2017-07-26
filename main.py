@@ -65,7 +65,8 @@ def require_login():
     # if path isn't in whitelist and user not logged in
     # redirects to login page 
     if request.endpoint not in allowed_routes and "username" not in session:
-        redirect("/login")
+        return redirect("/login")
+
 
 
 # lists all blog users
@@ -81,12 +82,7 @@ def index():
 # displays all blog entries
 @app.route("/blog", methods=["POST", "GET"])
 def blog():
-
-    # displays entries in chrono order
-    all_entries = Entry.query.all()
     
-    # from Al's code: shows all entries in reverse chronological order
-    #all_entries = Entry.query.order_by(Entry.datecreated.desc()).all()
 
     # show specific entry
     entry_id = request.args.get("id")
@@ -95,33 +91,24 @@ def blog():
         return render_template("one_entry.html", title="Blog Entry", entry=entry)
 
 
-    # TODO - NOT WORKING
     #shows specific user's entries
-    entry_owner_id = request.args.get("owner_id")
-    if entry_owner_id:
+    user_id = request.args.get("user")
+    if user_id:
 
-        entry_owner_id = User.query.filter_by(username=session['username']).first()
-        
-        entry = Entry.query.get(entry_id)
-        
-        user_entries = Entry.query.filter_by(entry_owner_id=entry_owner_id, entry=entry)
-
-
-
-        # if no entries
-        if len(user_entries) == 0:
-            return render_template("single_user.html", title="No Posts Yet", user_entries=user_entries)
-        else:
-            return render_template("single_user.html", title="Posts by User", user_entries=user_entries)
-
-# for displaying by user
-# example code from get-it-done
-# owner = User.query.filter_by(username=session["username"]).first()
-# tasks = Task.query.filter_by(completed=False,owner=owner).all()
+        entries = Entry.query.filter_by(owner_id=user_id).order_by(Entry.datecreated.desc()).all()
  
+        # if no entries
+        if len(entries) == 0:
+            return render_template("single_user.html", title="No Entries Yet", entries=entries)
+        else:
+            return render_template("single_user.html", title="Entries by User", entries=entries)
+
+
+    # shows all entries in reverse chronological order
+    entries = Entry.query.order_by(Entry.datecreated.desc()).all()
         
     #renders all entries
-    return render_template("mainpage.html", title="All Blog Entries", all_entries=all_entries)
+    return render_template("mainpage.html", title="All Blog Entries", entries=entries)
 
 
 @app.route("/new_entry", methods=["POST", "GET"])
@@ -135,7 +122,6 @@ def new_entry():
         new_entry = Entry(new_title, new_body, post_owner)
 
 
-        # validation
         # if valid input
         if new_entry.validation():
             # add to database
@@ -162,20 +148,24 @@ def signup():
         username = request.form["username"]
         password = request.form["password"]
         verify = request.form["verify"]
+        signup_error = False
 
         # validation 
         # only needed during signup since database checks during login
         # checks length of username
         if len(username) <=3 or len(username) >=20:
             flash("Please enter a username between 3 and 20 characters.", "error")
+            signup_error = True
             
         # checks length of password
         if len(password) <=3 or len(password) >=20:
             flash("Please enter a password between 3 and 20 characters.", "error")
+            signup_error = True
 
         # checks passwords match
         if password != verify:
             flash("Passwords must match.")
+            signup_error = True
             
 
         # checks if user already exists in database
@@ -212,6 +202,10 @@ def login():
             return redirect("/blog")
         else: 
             flash("User password incorrect, or user does not exist.", "error") 
+
+    # if user is already logged in, redirects to index page
+    if "username" in session: 
+        return redirect("/blog")
 
     return render_template("login.html")
 

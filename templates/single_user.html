@@ -3,17 +3,18 @@
 
 {% block content %}
 
-<h1>Posts by {{entry.owner.username}}</h1>
+<h1>Entries by User</h1>
 
-{% if entry|length == 0 %}
+{% if entries|length == 0 %}
 <p>No entries</p>
 {% else %}
-    {% for entry in user_entries %}
+    {% for entry in entries %}
         <h2>
             <a href="/blog?id={{ entry.id }}">{{entry.title}}</a>
         </h2>
         <p>{{ entry.body }}</p>
         <p>written by <a href="/blog?user={{entry.owner.id}}">{{entry.owner.username}}</a></p>
     {% endfor %}
+{% endif %}
 
 {% endblock %}

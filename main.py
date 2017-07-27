@@ -68,7 +68,6 @@ def require_login():
         return redirect("/login")
 
 
-
 # lists all blog users
 @app.route("/")
 def index():
@@ -83,18 +82,17 @@ def index():
 @app.route("/blog", methods=["POST", "GET"])
 def blog():
     
-
     # show specific entry
     entry_id = request.args.get("id")
     if entry_id:
         entry = Entry.query.get(entry_id)
         return render_template("one_entry.html", title="Blog Entry", entry=entry)
 
-
     #shows specific user's entries
     user_id = request.args.get("user")
     if user_id:
 
+        # if filtering by user
         entries = Entry.query.filter_by(owner_id=user_id).order_by(Entry.datecreated.desc()).all()
  
         # if no entries
@@ -164,23 +162,24 @@ def signup():
 
         # checks passwords match
         if password != verify:
-            flash("Passwords must match.")
+            flash("Passwords must match.", "error")
             signup_error = True
             
-
+        # if user signup passes validation
         # checks if user already exists in database
-        existing_user = User.query.filter_by(username=username).first()
-        if not existing_user:
-            # creates new user
-            new_user = User(username, password)
-            # adds new user to database 
-            db.session.add(new_user)
-            db.session.commit()
-            # adds username to session
-            session["username"] = username
-            return redirect("/blog")
-        else: 
-            flash("Username already exists.", "error")
+        if signup_error == False: 
+            existing_user = User.query.filter_by(username=username).first()
+            if not existing_user:
+                # creates new user
+                new_user = User(username, password)
+                # adds new user to database 
+                db.session.add(new_user)
+                db.session.commit()
+                # adds username to session
+                session["username"] = username
+                return redirect("/blog")
+            else: 
+                flash("Username already exists.", "error")
 
     return render_template("signup.html")
 
